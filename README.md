@@ -81,7 +81,26 @@ INSERT INTO drivers (driver_name, vehicle_type, vehicle_name, city, status, issu
 ('Anil Verma', 'car', 'Hyundai i20', 'Delhi', 'active', 'Vehicle issue - suspension check needed');
 GO
 
-SELECT, COUNT(*) as driver_count
+--SELECT, COUNT(*) as driver_count
+--FROM drivers
+--GROUP BY status
+--ORDER BY driver_count DESC;
+
+SELECT
+    driver_name,
+    city,
+    vehicle_name,
+    issue,
+    status
 FROM drivers
-GROUP BY status
-ORDER BY driver_count DESC;
+WHERE status = 'active';
+
+SELECT vehicle_type, COUNT(*) as active_count
+FROM drivers
+WHERE status = 'active'
+GROUP BY vehicle_type;
+
+
+SELECT status AS dp_status, COUNT(*) AS driver_count
+FROM drivers
+GROUP BY status;
