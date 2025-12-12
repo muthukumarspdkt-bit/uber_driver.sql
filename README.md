@@ -104,3 +104,11 @@ GROUP BY vehicle_type;
 SELECT status AS dp_status, COUNT(*) AS driver_count
 FROM drivers
 GROUP BY status;
+
+SELECT*
+FROM drivers
+where  city in ('Chennai') ;
+
+SELECT DVP.city, DVP.vehicle_name
+FROM drivers AS DVP
+WHERE DVP.vehicle_name LIKE '%Bajaj%';
