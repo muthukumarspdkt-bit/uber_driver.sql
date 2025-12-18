@@ -114,3 +114,9 @@ where  city in ('Chennai') ;
 SELECT DVP.city, DVP.vehicle_name
 FROM drivers AS DVP
 WHERE DVP.vehicle_name LIKE '%Bajaj%';
+
+SELECT 
+    city,SUM(trip_taken) AS total_trips_by_city
+FROM drivers
+GROUP BY city
+ORDER BY total_trips_by_city DESC;
