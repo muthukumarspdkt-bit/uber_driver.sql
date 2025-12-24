@@ -451,3 +451,8 @@ ORDER BY
 FROM drivers d
 LEFT JOIN agent_connections a
     ON d.driver_id = a.driver_id;
+
+    
+SELECT driver_issue, COUNT(*)
+FROM agent_connections
+GROUP BY driver_issue;
