@@ -16,7 +16,7 @@ CREATE TABLE drivers (
     license_expiry DATE NOT NULL,
     complaints_count INT DEFAULT 0,
     late_arrivals INT DEFAULT 0,
-    cancellation_rating DECIMAL(3,2) DEFAULT 0.00,
+    cancellation_rating DECIMAL(5,2) DEFAULT 0.00,
     total_earnings DECIMAL(12,2) DEFAULT 0.00,
     trips_completed INT DEFAULT 0,
     aadhar_number VARCHAR(3) NOT NULL CHECK (aadhar_number IN ('Yes', 'No')),
