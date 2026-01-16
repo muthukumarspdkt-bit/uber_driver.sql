@@ -121,6 +121,14 @@ SELECT DVP.city, DVP.vehicle_name
 FROM drivers AS DVP
 WHERE DVP.vehicle_name LIKE '%Bajaj%';
 
+SELECT driver_name, city, status, issue
+FROM drivers
+WHERE (aadhar_number = 'No' OR pan_number = 'No' 
+       OR background_verification_status = 'No' 
+       OR police_verification_document = 'No')
+  AND status = 'active';
+ 
+
 SELECT 
     city,SUM(trip_taken) AS total_trips_by_city
 FROM drivers
@@ -434,6 +442,14 @@ FROM agent_connections
 WHERE resolution_status = 'resolved'
 GROUP BY agent_name;
 
+SELECT 
+    city,
+    vehicle_type,
+    COUNT(d.driver_id) AS counting 
+FROM drivers d
+GROUP BY 
+    city,vehicle_type
+;
 
 SELECT 
     d.driver_id,
