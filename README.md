@@ -103,6 +103,10 @@ SELECT
 FROM drivers
 WHERE status = 'active';
 
+SELECT distinct
+vehicle_name
+ FROM drivers;
+
 SELECT vehicle_type, COUNT(*) as active_count
 FROM drivers
 WHERE status = 'active'
