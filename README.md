@@ -806,3 +806,24 @@ SELECT
 FROM competitor_driver_analysis
 GROUP BY competitor_app
 ORDER BY total_earnings DESC;
+
+
+
+SELECT 
+    cda.driver_name,
+    d.vehicle_type AS uber_vehicle,
+    cda.competitor_app,
+    d.total_earnings AS uber_earnings,
+    cda.total_earnings_competitor AS competitor_earnings,
+    (cda.total_earnings_competitor - d.total_earnings) AS earnings_difference,
+    CASE 
+        WHEN cda.total_earnings_competitor > d.total_earnings 
+        THEN 'Competitor Pays More'
+        ELSE 'Uber Pays More'
+    END AS better_platform,
+    cda.still_using_uber,
+    cda.driver_feedback
+FROM competitor_driver_analysis cda
+LEFT JOIN drivers d ON cda.driver_id = d.driver_id
+WHERE cda.driver_id IS NOT NULL
+ORDER BY earnings_difference DESC;
