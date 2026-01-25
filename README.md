@@ -501,3 +501,308 @@ SELECT
     END AS age_category
 FROM drivers;
 
+-- Create Competitor Driver Feedback and Performance Table
+CREATE TABLE competitor_driver_analysis (
+    analysis_id INT PRIMARY KEY IDENTITY(1,1),
+    driver_id INT NULL, -- NULL for new drivers not in Uber system
+    driver_name VARCHAR(40) NOT NULL,
+    competitor_app VARCHAR(30) NOT NULL CHECK (competitor_app IN ('Rapido', 'Namma Yatri', 'Ola', 'Red Taxi')),
+    vehicle_type VARCHAR(15) NOT NULL CHECK (vehicle_type IN ('bike', 'auto', 'car')),
+    city VARCHAR(30) NOT NULL,
+    
+total_earnings_competitor DECIMAL(30,2) NOT NULL,
+    monthly_incentive_offered DECIMAL(30,2) NOT NULL CHECK (monthly_incentive_offered BETWEEN 1000 AND 50000),
+    daily_incentive_offered DECIMAL(30,2) DEFAULT 0.00,
+    
+    
+active_driver_pass VARCHAR(3) CHECK (active_driver_pass IN ('Yes', 'No')),
+    earning_pass VARCHAR(3) CHECK (earning_pass IN ('Yes', 'No')),
+    pass_monthly_fee DECIMAL(10,2) DEFAULT 0.00,
+    
+
+daily_login_hours DECIMAL(5,2) NOT NULL,
+    weekly_login_hours DECIMAL(5,2) NOT NULL,
+    login_start_time TIME NOT NULL,
+    offline_time TIME NOT NULL,
+    
+pickup_point_discount VARCHAR(3) CHECK (pickup_point_discount IN ('Yes', 'No')),
+    pickup_discount_amount DECIMAL(10,2) DEFAULT 0.00,
+    other_offers VARCHAR(MAX),
+    
+   
+ easy_app_interface_rating DECIMAL(3,1) CHECK (easy_app_interface_rating BETWEEN 1.0 AND 5.0),
+    quick_booking_rating DECIMAL(3,1) CHECK (quick_booking_rating BETWEEN 1.0 AND 5.0),
+    nearby_partners_rating DECIMAL(3,1) CHECK (nearby_partners_rating BETWEEN 1.0 AND 5.0),
+    low_fare_rating DECIMAL(3,1) CHECK (low_fare_rating BETWEEN 1.0 AND 5.0),
+    high_offer_rating DECIMAL(3,1) CHECK (high_offer_rating BETWEEN 1.0 AND 5.0),
+    
+
+peak_booking_time_1 TIME,
+    peak_booking_time_2 TIME,
+    peak_booking_time_3 TIME,
+    
+ 
+driver_feedback VARCHAR(MAX),
+    competitor_join_date DATE NOT NULL,
+    still_using_uber VARCHAR(3) CHECK (still_using_uber IN ('Yes', 'No')),
+    
+created_at DATETIME2 DEFAULT GETDATE(),
+    FOREIGN KEY (driver_id) REFERENCES drivers(driver_id)
+);
+GO
+
+-- Insert Sample Data: Mix of Existing Uber Drivers and New Drivers
+INSERT INTO competitor_driver_analysis (
+    driver_id, driver_name, competitor_app, vehicle_type, city,
+    total_earnings_competitor, monthly_incentive_offered, daily_incentive_offered,
+    active_driver_pass, earning_pass, pass_monthly_fee,
+    daily_login_hours, weekly_login_hours, login_start_time, offline_time,
+    pickup_point_discount, pickup_discount_amount, other_offers,
+    easy_app_interface_rating, quick_booking_rating, nearby_partners_rating, 
+    low_fare_rating, high_offer_rating,
+    peak_booking_time_1, peak_booking_time_2, peak_booking_time_3,
+    driver_feedback, competitor_join_date, still_using_uber
+) VALUES
+-- RAPIDO DRIVERS (Bike focus)
+(1, 'Rajesh Kumar', 'Rapido', 'bike', 'Bangalore', 
+ 185000.00, 15000.00, 500.00, 'Yes', 'Yes', 299.00,
+ 10.5, 73.5, '07:00:00', '20:30:00',
+ 'Yes', 25.00, 'Free helmet, fuel cashback 5%',
+ 4.5, 4.7, 4.6, 4.8, 4.3,
+ '08:30:00', '17:30:00', '20:00:00',
+ 'Rapido gives more bike rides, better incentives than Uber. App is simpler to use.', '2023-06-15', 'Yes'),
+
+(6, 'Mohammed Ali', 'Rapido', 'bike', 'Bangalore',
+ 210000.00, 18000.00, 600.00, 'Yes', 'Yes', 299.00,
+ 11.0, 77.0, '06:30:00', '21:00:00',
+ 'Yes', 25.00, 'Weekly bonus ₹3000, referral bonus ₹500',
+ 4.6, 4.8, 4.7, 4.9, 4.5,
+ '08:00:00', '17:00:00', '19:30:00',
+ 'Rapido peak hours pay well. More consistent rides than Uber bikes.', '2022-11-20', 'Yes'),
+
+(NULL, 'Vikrant Rao', 'Rapido', 'bike', 'Mumbai',
+ 156000.00, 12000.00, 450.00, 'Yes', 'No', 0.00,
+ 9.5, 66.5, '07:30:00', '19:30:00',
+ 'Yes', 25.00, 'Rain bonus ₹200/day, Sunday surge 1.5x',
+ 4.4, 4.6, 4.5, 4.7, 4.2,
+ '09:00:00', '18:00:00', '20:30:00',
+ 'Good for bike riders. Quick payments. Customer support is responsive.', '2023-08-10', 'No'),
+
+(10, 'Pooja Singh', 'Rapido', 'bike', 'Delhi',
+ 165000.00, 13500.00, 475.00, 'Yes', 'Yes', 299.00,
+ 10.0, 70.0, '07:00:00', '20:00:00',
+ 'Yes', 25.00, 'Metro station pickup bonus ₹15',
+ 4.5, 4.7, 4.6, 4.8, 4.4,
+ '08:30:00', '17:30:00', '19:00:00',
+ 'App is easy to navigate. More bike demand than Uber in Delhi.', '2023-09-05', 'Yes'),
+
+-- NAMMA YATRI DRIVERS (Auto focus - Bangalore specific)
+(16, 'Karthik Rao', 'Namma Yatri', 'auto', 'Bangalore',
+ 195000.00, 22000.00, 700.00, 'No', 'No', 0.00,
+ 11.5, 80.5, '06:00:00', '21:00:00',
+ 'No', 0.00, 'Zero commission model, driver keeps 100% fare',
+ 4.9, 4.8, 4.7, 5.0, 4.6,
+ '08:00:00', '17:00:00', '19:30:00',
+ 'No commission is amazing! Direct payment from customer. Best for auto drivers.', '2023-03-20', 'No'),
+
+(NULL, 'Manjunath Gowda', 'Namma Yatri', 'auto', 'Bangalore',
+ 178000.00, 20000.00, 650.00, 'No', 'No', 0.00,
+ 10.5, 73.5, '07:00:00', '20:00:00',
+ 'No', 0.00, 'Government approved, meter-based pricing',
+ 4.8, 4.7, 4.6, 4.9, 4.5,
+ '08:30:00', '17:30:00', '20:00:00',
+ 'Transparent pricing. No hidden charges. Customers trust this app more.', '2023-05-15', 'No'),
+
+(23, 'Govind Sharma', 'Namma Yatri', 'auto', 'Bangalore',
+ 162000.00, 19000.00, 625.00, 'No', 'No', 0.00,
+ 10.0, 70.0, '07:30:00', '20:30:00',
+ 'No', 0.00, 'Auto drivers union supported',
+ 4.7, 4.6, 4.5, 4.8, 4.4,
+ '08:00:00', '17:00:00', '19:00:00',
+ 'Fair pricing model. Keep all my earnings. Good for Bangalore auto drivers.', '2024-01-10', 'No'),
+
+-- OLA DRIVERS (Mixed vehicles)
+(33, 'Neha Kapoor', 'Ola', 'car', 'Mumbai',
+ 295000.00, 28000.00, 850.00, 'Yes', 'Yes', 499.00,
+ 12.0, 84.0, '05:30:00', '22:00:00',
+ 'Yes', 25.00, 'Ola Prime access, airport priority',
+ 4.3, 4.5, 4.6, 4.2, 4.4,
+ '08:30:00', '17:30:00', '21:00:00',
+ 'Good incentive structure. More rides than Uber in Mumbai. Support could be better.', '2021-08-15', 'Yes'),
+
+(40, 'Prakash Shetty', 'Ola', 'car', 'Bangalore',
+ 342000.00, 35000.00, 1000.00, 'Yes', 'Yes', 499.00,
+ 13.0, 91.0, '05:00:00', '23:00:00',
+ 'Yes', 25.00, 'Platinum driver benefits, fuel card 3% off',
+ 4.4, 4.6, 4.7, 4.3, 4.5,
+ '08:00:00', '17:00:00', '20:30:00',
+ 'Higher rides volume. Better peak time earnings. Using both Ola and Uber.', '2021-02-20', 'Yes'),
+
+(NULL, 'Ramakrishna Pillai', 'Ola', 'auto', 'Chennai',
+ 142000.00, 16000.00, 525.00, 'Yes', 'No', 0.00,
+ 9.5, 66.5, '07:00:00', '19:30:00',
+ 'Yes', 25.00, 'Chennai metro pickup bonus ₹20',
+ 4.2, 4.4, 4.5, 4.3, 4.1,
+ '08:30:00', '17:30:00', '19:30:00',
+ 'Decent app. Lots of auto rides in Chennai. Commission is high though.', '2022-07-12', 'No'),
+
+(34, 'Divya Krishnan', 'Ola', 'car', 'Hyderabad',
+ 256000.00, 24000.00, 750.00, 'Yes', 'Yes', 499.00,
+ 11.0, 77.0, '06:00:00', '21:00:00',
+ 'Yes', 25.00, 'Share ride bonus, weekly target incentive',
+ 4.3, 4.5, 4.4, 4.2, 4.3,
+ '08:00:00', '17:00:00', '20:00:00',
+ 'Stable platform. Good for Hyderabad market. Multiple ride options help.', '2022-03-15', 'Yes'),
+
+(NULL, 'Sachin Patil', 'Ola', 'bike', 'Pune',
+ 138000.00, 11000.00, 425.00, 'Yes', 'Yes', 299.00,
+ 9.0, 63.0, '07:30:00', '19:00:00',
+ 'Yes', 25.00, 'College area bonus ₹10/ride',
+ 4.2, 4.4, 4.3, 4.5, 4.1,
+ '08:30:00', '17:00:00', '19:00:00',
+ 'Good bike ride demand in Pune. App sometimes lags during peak hours.', '2023-04-18', 'No'),
+
+-- RED TAXI DRIVERS (Auto & Car focus)
+(NULL, 'Aravind Kumar', 'Red Taxi', 'auto', 'Bangalore',
+ 125000.00, 14000.00, 475.00, 'Yes', 'No', 0.00,
+ 8.5, 59.5, '08:00:00', '19:00:00',
+ 'Yes', 25.00, 'Red points loyalty, free uniform',
+ 4.1, 4.3, 4.2, 4.4, 4.0,
+ '09:00:00', '17:00:00', '19:30:00',
+ 'Smaller app but growing. Good incentives for auto. Less competition.', '2023-11-05', 'No'),
+
+(NULL, 'Sanjay Reddy', 'Red Taxi', 'car', 'Hyderabad',
+ 198000.00, 21000.00, 675.00, 'Yes', 'Yes', 399.00,
+ 10.5, 73.5, '07:00:00', '20:30:00',
+ 'Yes', 25.00, 'Corporate booking priority, insurance cover',
+ 4.2, 4.4, 4.3, 4.1, 4.2,
+ '08:30:00', '17:30:00', '20:00:00',
+ 'Focus on premium customers. Good app interface. Growing in Hyderabad.', '2024-02-14', 'No'),
+
+(51, 'Ranjit Singh', 'Red Taxi', 'car', 'Amritsar',
+ 176000.00, 18000.00, 600.00, 'Yes', 'No', 0.00,
+ 9.5, 66.5, '07:30:00', '20:00:00',
+ 'Yes', 25.00, 'Tourist spot bonus ₹50, Golden Temple area priority',
+ 4.3, 4.5, 4.4, 4.2, 4.3,
+ '09:00:00', '14:00:00', '18:00:00',
+ 'Good for tourist cities. Better rates than Ola/Uber in Amritsar.', '2023-06-22', 'Yes'),
+
+-- More RAPIDO drivers
+(NULL, 'Deepak Chauhan', 'Rapido', 'bike', 'Delhi',
+ 148000.00, 12500.00, 450.00, 'Yes', 'Yes', 299.00,
+ 9.5, 66.5, '07:00:00', '19:00:00',
+ 'Yes', 25.00, 'Delivery integration, earn extra ₹5000/month',
+ 4.4, 4.6, 4.5, 4.7, 4.3,
+ '08:30:00', '17:30:00', '20:00:00',
+ 'Can do food delivery too. Multiple income sources. App is lightweight.', '2023-10-08', 'No'),
+
+(2, 'Priya Sharma', 'Rapido', 'bike', 'Mumbai',
+ 132000.00, 11500.00, 425.00, 'Yes', 'Yes', 299.00,
+ 8.5, 59.5, '08:00:00', '19:00:00',
+ 'Yes', 25.00, 'Women driver safety features, night bonus 1.8x',
+ 4.5, 4.7, 4.6, 4.8, 4.4,
+ '09:00:00', '17:00:00', '20:30:00',
+ 'Safe app for women drivers. Good support team. Better than Uber for bikes.', '2023-07-20', 'Yes'),
+
+-- More NAMMA YATRI drivers
+(NULL, 'Shankar Naik', 'Namma Yatri', 'auto', 'Bangalore',
+ 154000.00, 18500.00, 600.00, 'No', 'No', 0.00,
+ 10.0, 70.0, '06:30:00', '19:30:00',
+ 'No', 0.00, 'Driver welfare fund, health insurance',
+ 4.8, 4.7, 4.6, 4.9, 4.5,
+ '08:00:00', '17:00:00', '19:00:00',
+ 'Best auto app in Bangalore. Fair to drivers. Customers appreciate transparency.', '2023-08-30', 'No'),
+
+-- More OLA drivers
+(54, 'Sunil Kapoor', 'Ola', 'car', 'Bangalore',
+ 312000.00, 32000.00, 950.00, 'Yes', 'Yes', 499.00,
+ 12.5, 87.5, '05:30:00', '22:30:00',
+ 'Yes', 25.00, 'Diamond tier perks, fuel subsidy ₹2000/month',
+ 4.4, 4.6, 4.7, 4.3, 4.5,
+ '08:00:00', '17:00:00', '21:00:00',
+ 'Excellent for high volume drivers. Better airport rides. Using both apps.', '2021-09-10', 'Yes'),
+
+(NULL, 'Vinod Mehta', 'Ola', 'car', 'Delhi',
+ 268000.00, 26000.00, 800.00, 'Yes', 'Yes', 499.00,
+ 11.5, 80.5, '06:00:00', '21:30:00',
+ 'Yes', 25.00, 'Delhi NCR zone pass, toll reimbursement',
+ 4.3, 4.5, 4.6, 4.2, 4.4,
+ '08:30:00', '17:30:00', '20:30:00',
+ 'Strong presence in Delhi. Good corporate bookings. Reliable income.', '2022-05-18', 'No'),
+
+-- More RED TAXI drivers
+(NULL, 'Lakshman Rao', 'Red Taxi', 'auto', 'Hyderabad',
+ 118000.00, 13500.00, 450.00, 'Yes', 'No', 0.00,
+ 8.0, 56.0, '08:00:00', '18:30:00',
+ 'Yes', 25.00, 'TSRTC bus stand pickup bonus ₹30',
+ 4.1, 4.3, 4.2, 4.3, 4.0,
+ '09:00:00', '17:00:00', '19:00:00',
+ 'New app, less drivers means more rides. Support is good. Growing fast.', '2024-03-12', 'No'),
+
+(NULL, 'Ashwini Patil', 'Red Taxi', 'car', 'Pune',
+ 156000.00, 17000.00, 550.00, 'Yes', 'Yes', 399.00,
+ 9.0, 63.0, '07:30:00', '19:30:00',
+ 'Yes', 25.00, 'IT park priority, weekend surge 1.6x',
+ 4.2, 4.4, 4.3, 4.1, 4.2,
+ '08:30:00', '17:00:00', '19:30:00',
+ 'Focuses on quality over quantity. Premium customers. Good earnings.', '2024-01-20', 'No'),
+
+-- Additional diverse entries
+(NULL, 'Mahesh Bhat', 'Rapido', 'bike', 'Mangalore',
+ 96000.00, 9500.00, 350.00, 'Yes', 'No', 0.00,
+ 7.5, 52.5, '08:00:00', '18:00:00',
+ 'Yes', 25.00, 'Coastal city bonus, beach area surge',
+ 4.3, 4.5, 4.4, 4.6, 4.2,
+ '09:00:00', '13:00:00', '18:00:00',
+ 'Perfect for tier 2 cities. Less traffic, good earnings. Simple app.', '2024-04-05', 'No'),
+
+(NULL, 'Priyanka Desai', 'Ola', 'auto', 'Ahmedabad',
+ 134000.00, 15000.00, 500.00, 'Yes', 'No', 0.00,
+ 9.0, 63.0, '07:00:00', '19:00:00',
+ 'Yes', 25.00, 'Women driver priority, SOS button',
+ 4.2, 4.4, 4.3, 4.2, 4.1,
+ '08:30:00', '17:00:00', '19:30:00',
+ 'Safe for women. Good auto demand. Commission is reasonable.', '2023-12-08', 'No'),
+
+(NULL, 'Kamal Hassan', 'Namma Yatri', 'auto', 'Bangalore',
+ 168000.00, 19500.00, 625.00, 'No', 'No', 0.00,
+ 10.5, 73.5, '06:00:00', '20:00:00',
+ 'No', 0.00, 'Kannada language support, local driver benefits',
+ 4.9, 4.8, 4.7, 5.0, 4.6,
+ '08:00:00', '17:00:00', '19:30:00',
+ 'Made for Bangalore. Understand local needs. Best auto platform here.', '2023-06-18', 'No'),
+
+(55, 'Preeti Agarwal', 'Ola', 'car', 'Mumbai',
+ 289000.00, 27000.00, 825.00, 'Yes', 'Yes', 499.00,
+ 11.5, 80.5, '06:00:00', '21:30:00',
+ 'Yes', 25.00, 'Premium Sedan access, luxury car bonus',
+ 4.3, 4.5, 4.6, 4.2, 4.4,
+ '08:30:00', '17:30:00', '21:00:00',
+ 'Great for Mumbai. Airport rides are profitable. Both apps work well together.', '2022-01-15', 'Yes'),
+
+(NULL, 'Harpreet Kaur', 'Red Taxi', 'car', 'Chandigarh',
+ 145000.00, 16000.00, 525.00, 'Yes', 'No', 0.00,
+ 8.5, 59.5, '08:00:00', '19:00:00',
+ 'Yes', 25.00, 'Sector pickup bonus, Mohali-Panchkula trips extra ₹30',
+ 4.2, 4.4, 4.3, 4.1, 4.2,
+ '09:00:00', '17:00:00', '20:00:00',
+ 'Growing well in Chandigarh. Less competition. Good for women drivers.', '2024-02-28', 'No');
+
+GO
+
+-- QUERY 1: Total Earnings by Competitor App
+SELECT 
+    competitor_app,
+    COUNT(*) AS total_drivers,
+    COUNT(DISTINCT vehicle_type) AS vehicle_types_offered,
+    SUM(total_earnings_competitor) AS total_earnings,
+    AVG(total_earnings_competitor) AS avg_earnings_per_driver,
+    AVG(monthly_incentive_offered) AS avg_monthly_incentive,
+    AVG(daily_login_hours) AS avg_daily_hours,
+    AVG(weekly_login_hours) AS avg_weekly_hours,
+    ROUND(AVG(easy_app_interface_rating), 2) AS avg_app_rating,
+    ROUND(AVG(low_fare_rating), 2) AS avg_fare_rating,
+    ROUND(AVG(high_offer_rating), 2) AS avg_offer_rating
+FROM competitor_driver_analysis
+GROUP BY competitor_app
+ORDER BY total_earnings DESC;
