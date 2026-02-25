@@ -827,3 +827,103 @@ FROM competitor_driver_analysis cda
 LEFT JOIN drivers d ON cda.driver_id = d.driver_id
 WHERE cda.driver_id IS NOT NULL
 ORDER BY earnings_difference DESC;
+
+CREATE TABLE driver_reports (
+    driver_id INT PRIMARY KEY IDENTITY(1,1),
+
+driver_name VARCHAR(100) NOT NULL,
+
+driver_status VARCHAR(10) NOT NULL
+  CHECK (driver_status IN ('Active', 'Inactive')),
+
+tag VARCHAR(20) NULL
+CHECK (tag IN ('Low Demand') OR tag IS NULL),
+
+jira_escalation VARCHAR(3) NULL
+CHECK (jira_escalation IN ('Yes', 'No') OR jira_escalation IS NULL),
+
+jira_ticket_number VARCHAR(50) NULL,
+
+ membership VARCHAR(3) NOT NULL
+ CHECK (membership IN ('Yes', 'No')),
+
+cash_trip VARCHAR(3) NOT NULL
+ CHECK (cash_trip IN ('On', 'Off')),
+
+tds_issue VARCHAR(3) NOT NULL
+CHECK (tds_issue IN ('Yes', 'No')),
+
+customer_impression INT
+CHECK (customer_impression BETWEEN 10 AND 1000),
+
+created_at DATETIME DEFAULT GETDATE(),
+
+updated_at DATETIME DEFAULT GETDATE()
+);
+INSERT INTO driver_reports 
+(driver_name, driver_status, tag, jira_escalation, jira_ticket_number, membership, cash_trip, tds_issue, customer_impression)
+VALUES
+
+-- 🏍️ Bike Drivers
+('Rajesh Kumar',   'Active',   'Low Demand', 'No',  NULL,        'Yes', 'On',  'No',  850),
+('Priya Sharma',   'Active',   'Low Demand', 'Yes', 'JIRA-1011', 'Yes', 'On',  'Yes', 620),
+('Amit Patel',     'Inactive',  NULL,        NULL,  NULL,        'No',  'Off', 'No',  45),
+('Sunita Reddy',   'Inactive',  NULL,        NULL,  NULL,        'No',  'Off', 'Yes', 120),
+('Vijay Singh',    'Active',   'Low Demand', 'No',  NULL,        'Yes', 'On',  'No',  500),
+('Mohammed Ali',   'Active',   'Low Demand', 'Yes', 'JIRA-1022', 'Yes', 'On',  'No',  980),
+('Kavita Nair',    'Active',   'Low Demand', 'No',  NULL,        'No',  'Off', 'No',  760),
+('Sneha Desai',    'Active',   'Low Demand', 'Yes', 'JIRA-1031', 'Yes', 'On',  'Yes', 870),
+('Anjali Verma',   'Inactive',  NULL,        NULL,  NULL,        'No',  'Off', 'No',  10),
+('Pooja Singh',    'Active',   'Low Demand', 'No',  NULL,        'Yes', 'On',  'No',  920),
+('Pallavi Jain',   'Active',   'Low Demand', 'Yes', 'JIRA-1045', 'Yes', 'Off', 'No',  680),
+('Seema Roy',      'Active',   'Low Demand', 'Yes', 'JIRA-1052', 'No',  'On',  'Yes', 440),
+
+-- 🛺 Auto Drivers
+('Lakshmi Iyer',   'Active',   'Low Demand', 'Yes', 'JIRA-2010', 'Yes', 'On',  'Yes', 670),
+('Deepak Mehta',   'Inactive',  NULL,        NULL,  NULL,        'No',  'Off', 'Yes', 67),
+('Rahul Gupta',    'Inactive',  NULL,        NULL,  NULL,        'No',  'Off', 'No',  23),
+('Karthik Rao',    'Active',   'Low Demand', 'No',  NULL,        'Yes', 'On',  'No',  890),
+('Suresh Babu',    'Active',   'Low Demand', 'No',  NULL,        'No',  'Off', 'Yes', 450),
+('Arun Kumar',     'Inactive',  NULL,        NULL,  NULL,        'Yes', 'Off', 'Yes', 56),
+('Ramesh Pillai',  'Inactive',  NULL,        NULL,  NULL,        'No',  'Off', 'No',  18),
+('Sandeep Joshi',  'Active',   'Low Demand', 'Yes', 'JIRA-2033', 'Yes', 'On',  'No',  730),
+('Vikram Malhotra','Active',   'Low Demand', 'No',  NULL,        'No',  'On',  'No',  300),
+('Rekha Patel',    'Inactive',  NULL,        NULL,  NULL,        'No',  'Off', 'Yes', 72),
+('Govind Sharma',  'Active',   'Low Demand', 'Yes', 'JIRA-2047', 'Yes', 'On',  'Yes', 990),
+('Manoj Tiwari',   'Inactive',  NULL,        NULL,  NULL,        'Yes', 'Off', 'No',  34),
+('Harish Bhat',    'Active',   'Low Demand', 'Yes', 'JIRA-2055', 'Yes', 'On',  'Yes', 590),
+('Swati Kulkarni', 'Inactive',  NULL,        NULL,  NULL,        'No',  'Off', 'Yes', 61),
+('Nandini Rao',    'Active',   'Low Demand', 'No',  NULL,        'Yes', 'Off', 'No',  200),
+('Geeta Menon',    'Active',   'Low Demand', 'Yes', 'JIRA-2061', 'Yes', 'On',  'No',  520),
+('Sanjay Mishra',  'Inactive',  NULL,        NULL,  NULL,        'No',  'Off', 'Yes', 29),
+('Naresh Yadav',   'Inactive',  NULL,        NULL,  NULL,        'No',  'Off', 'No',  54),
+('Usha Rani',      'Inactive',  NULL,        NULL,  NULL,        'Yes', 'Off', 'Yes', 15),
+('Bharti Agarwal', 'Inactive',  NULL,        NULL,  NULL,        'Yes', 'Off', 'No',  48),
+
+-- 🚗 Car Drivers
+('Neha Kapoor',    'Active',   'Low Demand', 'No',  NULL,        'Yes', 'On',  'No',  940),
+('Divya Krishnan', 'Active',   'Low Demand', 'Yes', 'JIRA-3011', 'Yes', 'On',  'No',  870),
+('Meera Devi',     'Active',   'Low Demand', 'No',  NULL,        'Yes', 'On',  'Yes', 760),
+('Shalini Reddy',  'Active',   'Low Demand', 'Yes', 'JIRA-3021', 'No',  'On',  'No',  810),
+('Anita Deshmukh', 'Active',   'Low Demand', 'No',  NULL,        'Yes', 'Off', 'No',  700),
+('Pradeep Nair',   'Active',   'Low Demand', 'Yes', 'JIRA-3031', 'Yes', 'On',  'Yes', 650),
+('Ravi Chandra',   'Active',   'Low Demand', 'No',  NULL,        'Yes', 'On',  'No',  830),
+('Ashok Kumar',    'Active',   'Low Demand', 'No',  NULL,        'No',  'Off', 'No',  580),
+('Kavita Bose',    'Active',   'Low Demand', 'Yes', 'JIRA-3042', 'Yes', 'Off', 'Yes', 490),
+('Prakash Shetty', 'Active',   'Low Demand', 'Yes', 'JIRA-3051', 'Yes', 'On',  'No',  960),
+('Madhuri Sinha',  'Inactive',  NULL,        NULL,  NULL,        'No',  'Off', 'No',  10),
+('Dinesh Pillai',  'Active',   'Low Demand', 'Yes', 'JIRA-3061', 'Yes', 'On',  'Yes', 610),
+('Radha Krishna',  'Active',   'Low Demand', 'No',  NULL,        'Yes', 'On',  'No',  880),
+('Ajay Thakur',    'Active',   'Low Demand', 'No',  NULL,        'No',  'On',  'No',  430),
+('Mohan Das',      'Inactive',  NULL,        NULL,  NULL,        'Yes', 'Off', 'No',  200),
+('Kishore Kumar',  'Active',   'Low Demand', 'Yes', 'JIRA-3075', 'Yes', 'On',  'No',  750),
+('Brijesh Pandey', 'Active',   'Low Demand', 'Yes', 'JIRA-3081', 'No',  'On',  'Yes', 380),
+('Archana Iyer',   'Inactive',  NULL,        NULL,  NULL,        'Yes', 'Off', 'No',  10),
+('Nitesh Agarwal', 'Active',   'Low Demand', 'No',  NULL,        'Yes', 'On',  'No',  910),
+('Shilpa Hegde',   'Inactive',  NULL,        NULL,  NULL,        'No',  'Off', 'Yes', 78),
+('Ranjit Singh',   'Active',   'Low Demand', 'Yes', 'JIRA-3095', 'Yes', 'On',  'No',  860),
+('Vaishali Chopra','Inactive',  NULL,        NULL,  NULL,        'No',  'Off', 'Yes', 41),
+('Ganesh Murthy',  'Active',   'Low Demand', 'Yes', 'JIRA-3101', 'Yes', 'On',  'No',  790),
+('Sunil Kapoor',   'Active',   'Low Demand', 'No',  NULL,        'Yes', 'On',  'No',  970),
+('Preeti Agarwal', 'Active',   'Low Demand', 'Yes', 'JIRA-3111', 'Yes', 'On',  'Yes', 820),
+('Anil Verma',     'Active',   'Low Demand', 'Yes', 'JIRA-3121', 'No',  'On',  'No',  710);
