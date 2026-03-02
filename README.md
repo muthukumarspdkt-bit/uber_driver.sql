@@ -927,3 +927,252 @@ VALUES
 ('Sunil Kapoor',   'Active',   'Low Demand', 'No',  NULL,        'Yes', 'On',  'No',  970),
 ('Preeti Agarwal', 'Active',   'Low Demand', 'Yes', 'JIRA-3111', 'Yes', 'On',  'Yes', 820),
 ('Anil Verma',     'Active',   'Low Demand', 'Yes', 'JIRA-3121', 'No',  'On',  'No',  710);
+
+CREATE TABLE customer_trips (
+    trip_id INT IDENTITY(1,1) PRIMARY KEY,
+
+    -- Customer Info
+    customer_name NVARCHAR(100)   NOT NULL,
+    customer_city NVARCHAR(100)   NOT NULL,
+    customer_payment_pref NVARCHAR(10)    NOT NULL
+    CHECK (customer_payment_pref IN ('cash','online','both')),
+
+    -- Ride Preference
+    vehicle_type NVARCHAR(10)    NOT NULL
+    CHECK (vehicle_type IN ('bike','auto','car')),
+    ride_subtype NVARCHAR(20)    NULL
+  CHECK (ride_subtype IN ('bike','scooty','pink_scooty','premier','sedan','rental','intercity',NULL)),
+
+    -- Driver Info (name only)
+    driver_name              NVARCHAR(100)   NULL,   -- NULL = not picked
+    driver_city              NVARCHAR(100)   NULL,
+    driver_payment_pref      NVARCHAR(10)    NULL
+                                 CHECK (driver_payment_pref IN ('cash','online','both', NULL)),
+
+    -- Payment Match Result
+    payment_mode_used        NVARCHAR(10) NULL
+    CHECK (payment_mode_used IN ('cash','online', NULL)),
+
+    -- Trip Assignment
+    trip_status NVARCHAR(20) NOT NULL DEFAULT 'not_picked'
+    CHECK (trip_status IN ('assigned','not_picked')),
+    not_picked_reason        NVARCHAR(200)   NULL,
+
+    -- Trip Details
+    trip_date                DATE            NOT NULL,
+    driver_reaction_mins     SMALLINT        NULL,   -- how fast driver accepted
+    trip_duration_mins       SMALLINT        NULL,
+    trip_distance_km         DECIMAL(6,2)    NULL,
+    fare_amount              DECIMAL(8,2)    NULL,
+
+    -- Order tracking
+    total_orders_by_customer INT NULL,   -- filled via query / app logic
+
+    created_at DATETIME2 DEFAULT GETDATE()
+);
+GO
+
+
+-- ============================================================
+--  INSERT SAMPLE DATA
+-- ============================================================
+INSERT INTO customer_trips (
+    customer_name, customer_city, customer_payment_pref,
+    vehicle_type, ride_subtype,
+    driver_name, driver_city, driver_payment_pref,
+    payment_mode_used, trip_status, not_picked_reason,
+    trip_date, driver_reaction_mins, trip_duration_mins,
+    trip_distance_km, fare_amount
+)
+VALUES
+-- ── BIKE TRIPS ───────────────────────────────────────────────
+('Arjun Mehta',  'Bangalore', 'both',
+ 'bike', 'bike',
+ N'Rajesh Kumar',    'Bangalore', 'both',
+ 'cash',   'assigned',   NULL,
+ '2025-01-05', 3, 18, 7.2,  95.00),
+
+('Arjun Mehta',     'Bangalore', 'cash',
+ 'bike', 'pink_scooty',
+ NULL,                NULL,        NULL,
+ NULL,     'not_picked', N'No pink scooty driver available in Bangalore',
+ '2025-01-18', NULL, NULL, NULL, NULL),
+
+('Sneha Pillai',    'Mumbai',    'online',
+ 'bike', 'scooty',
+ N'Priya Sharma',   'Mumbai',    'both',
+ 'online', 'assigned',   NULL,
+ '2025-01-06', 2, 22, 9.5, 110.00),
+
+(N'Karan Singh',     N'Bangalore', 'cash',
+ 'bike', 'bike',
+ N'Mohammed Ali',    N'Bangalore', 'both',
+ 'cash',   'assigned',   NULL,
+ '2025-01-10', 4, 25, 10.1, 120.00),
+
+(N'Priyanka Patel',  N'Jaipur',    'online',
+ 'bike', 'scooty',
+ N'Pallavi Jain',    N'Jaipur',    'both',
+ 'online', 'assigned',   NULL,
+ '2025-01-22', 3, 20, 8.3,  98.00),
+
+(N'Rohit Sharma',    N'Delhi',     'cash',
+ 'bike', 'bike',
+ N'Pooja Singh',     N'Delhi',     'both',
+ 'cash',   'assigned',   NULL,
+ '2025-01-15', 2, 17, 6.8,  85.00),
+
+-- ── AUTO TRIPS ───────────────────────────────────────────────
+(N'Vikram Nair',     N'Kochi',     'cash',
+ 'auto', NULL,
+ NULL,                NULL,        NULL,
+ NULL,     'not_picked', N'No active auto driver in Kochi',
+ '2025-01-07', NULL, NULL, NULL, NULL),
+
+(N'Rohit Sharma',    N'Delhi',     'both',
+ 'auto', NULL,
+ NULL,                NULL,        NULL,
+ NULL,     'not_picked', N'No active auto driver in Delhi',
+ '2025-01-12', NULL, NULL, NULL, NULL),
+
+(N'Tarun Gupta',     N'Indore',    'online',
+ 'auto', NULL,
+ N'Govind Sharma',   N'Indore',    'both',
+ 'online', 'assigned',   NULL,
+ '2025-01-20', 5, 14, 4.8,  75.00),
+
+(N'Meghna Iyer',     N'Chennai',   'both',
+ 'auto', NULL,
+ NULL,                NULL,        NULL,
+ NULL,     'not_picked', N'Auto driver in Chennai under reactivation',
+ '2025-01-14', NULL, NULL, NULL, NULL),
+
+(N'Siddharth Joshi', N'Bangalore', 'both',
+ 'auto', NULL,
+ N'Karthik Rao',     N'Bangalore', 'both',
+ 'cash',   'assigned',   NULL,
+ '2025-01-18', 4, 19, 7.1,  90.00),
+
+-- ── CAR TRIPS ────────────────────────────────────────────────
+(N'Ananya Bose',     N'Kolkata',   'online',
+ 'car', 'sedan',
+ N'Kavita Bose',     N'Kolkata',   'both',
+ 'online', 'assigned',   NULL,
+ '2025-01-08', 6, 30, 12.0, 220.00),
+
+(N'Deepika Rao',     N'Hyderabad', 'cash',
+ 'car', 'premier',
+ N'Divya Krishnan',  N'Hyderabad', 'both',
+ 'cash',   'assigned',   NULL,
+ '2025-01-09', 4, 28, 11.5, 310.00),
+
+(N'Siddharth Joshi', N'Ahmedabad', 'both',
+ 'car', 'rental',
+ NULL,                NULL,        NULL,
+ NULL,     'not_picked', N'No active car driver in Ahmedabad',
+ '2025-01-11', NULL, NULL, NULL, NULL),
+
+(N'Priyanka Patel',  N'Jaipur',    'online',
+ 'car', 'intercity',
+ NULL,                NULL,        NULL,
+ NULL,     'not_picked', N'No active car driver in Jaipur',
+ '2025-01-15', NULL, NULL, NULL, NULL),
+
+(N'Ritu Verma',      N'Mumbai',    'both',
+ 'car', 'sedan',
+ N'Neha Kapoor',     N'Mumbai',    'both',
+ 'online', 'assigned',   NULL,
+ '2025-01-16', 3, 35, 14.2, 380.00),
+
+(N'Aakash Malhotra', N'Nagpur',    'cash',
+ 'car', 'premier',
+ N'Anita Deshmukh',  N'Nagpur',    'cash',
+ 'cash',   'assigned',   NULL,
+ '2025-01-17', 5, 20,  8.5, 260.00),
+
+(N'Swati Desai',     N'Kochi',     'online',
+ 'car', 'rental',
+ N'Pradeep Nair',    N'Kochi',     'both',
+ 'online', 'assigned',   NULL,
+ '2025-01-19', 4, 45, 18.0, 520.00),
+
+(N'Nikhil Reddy',    N'Hyderabad', 'both',
+ 'car', 'sedan',
+ N'Radha Krishna',   N'Hyderabad', 'both',
+ 'cash',   'assigned',   NULL,
+ '2025-01-21', 3, 32, 13.0, 350.00),
+
+(N'Pooja Kulkarni',  N'Pune',      'cash',
+ 'car', 'premier',
+ NULL,                NULL,        NULL,
+ NULL,     'not_picked', N'No active car driver in Pune',
+ '2025-01-22', NULL, NULL, NULL, NULL),
+
+(N'Ayush Shetty',    N'Bangalore', 'online',
+ 'car', 'sedan',
+ N'Sunil Kapoor',    N'Bangalore', 'both',
+ 'online', 'assigned',   NULL,
+ '2025-01-23', 2, 38, 15.5, 410.00),
+
+(N'Kavya Krishnan',  N'Visakhapatnam','both',
+ 'car', 'intercity',
+ N'Ravi Chandra',    N'Visakhapatnam','both',
+ 'cash',   'assigned',   NULL,
+ '2025-01-24', 7, 180, 95.0, 2400.00),
+
+(N'Harsh Kapoor',    N'Mumbai',    'cash',
+ 'car', 'sedan',
+ N'Neha Kapoor',     N'Mumbai',    'both',
+ 'cash',   'assigned',   NULL,
+ '2025-01-25', 4, 40, 16.2, 430.00),
+
+(N'Harsh Kapoor',    N'Mumbai',    'online',
+ 'car', 'premier',
+ N'Preeti Agarwal',  N'Mumbai',    'online',
+ 'online', 'assigned',   NULL,
+ '2025-01-28', 3, 33, 13.5, 370.00),
+
+(N'Divya Agarwal',   N'Shimla',    'online',
+ 'car', 'premier',
+ N'Ajay Thakur',     N'Shimla',    'both',
+ 'online', 'assigned',   NULL,
+ '2025-01-26', 3, 22,  9.0, 280.00),
+
+(N'Saurabh Pandey',  N'Vijayawada','both',
+ 'car', 'rental',
+ N'Kishore Kumar',   N'Vijayawada','both',
+ 'cash',   'assigned',   NULL,
+ '2025-01-27', 5, 120, 55.0, 1800.00),
+
+(N'Neha Tiwari',     N'Amritsar',  'cash',
+ 'car', 'sedan',
+ N'Ranjit Singh',    N'Amritsar',  'cash',
+ 'cash',   'assigned',   NULL,
+ '2025-01-28', 4, 28, 11.0, 320.00),
+
+(N'Kunal Chopra',    N'Delhi',     'online',
+ 'car', 'premier',
+ NULL,                NULL,        NULL,
+ NULL,     'not_picked', N'No premier car driver in Delhi matching payment',
+ '2025-01-29', NULL, NULL, NULL, NULL),
+
+(N'Isha Mishra',     N'Bangalore', 'both',
+ 'car', 'sedan',
+ N'Sunil Kapoor',    N'Bangalore', 'both',
+ 'online', 'assigned',   NULL,
+ '2025-01-30', 2, 42, 17.0, 440.00),
+
+-- Payment mismatch examples (driver online-only, customer cash-only)
+(N'Prerna Roy',      N'Kolkata',   'cash',
+ 'car', 'sedan',
+ NULL,                NULL,        NULL,
+ NULL,     'not_picked', N'Payment mismatch: customer cash only, no cash driver available',
+ '2025-01-31', NULL, NULL, NULL, NULL),
+
+(N'Manish Yadav',    N'Chennai',   'online',
+ 'car', 'sedan',
+ N'Ganesh Murthy',   N'Chennai',   'both',
+ 'online', 'assigned',   NULL,
+ '2025-02-01', 3, 29, 11.8, 300.00);
+GO
+
