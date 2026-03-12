@@ -1176,3 +1176,11 @@ VALUES
  '2025-02-01', 3, 29, 11.8, 300.00);
 GO
 
+
+SELECT *
+FROM (
+    SELECT vehicle_type, city, SUM(trip_taken) AS total
+    FROM Drivers
+    GROUP BY city, vehicle_type
+) 
+WHERE total > 500;
