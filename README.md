@@ -1184,3 +1184,15 @@ FROM (
     GROUP BY city, vehicle_type
 ) 
 WHERE total > 500;
+
+
+SELECT 
+    d.*,
+    u.*,
+    CASE 
+        WHEN DATEDIFF(YEAR, d.date_of_birth, GETDATE()) < 18 THEN 'minor'
+        ELSE 'adult'
+    END AS category
+FROM drivers d
+JOIN uber_eats_orders u 
+    ON d.driver_id = u.order_id
