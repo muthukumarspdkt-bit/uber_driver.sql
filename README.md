@@ -931,44 +931,44 @@ VALUES
 CREATE TABLE customer_trips (
     trip_id INT IDENTITY(1,1) PRIMARY KEY,
 
-    -- Customer Info
+Customer Info
     customer_name NVARCHAR(100)   NOT NULL,
     customer_city NVARCHAR(100)   NOT NULL,
     customer_payment_pref NVARCHAR(10)    NOT NULL
     CHECK (customer_payment_pref IN ('cash','online','both')),
 
-    -- Ride Preference
+Ride Preference
     vehicle_type NVARCHAR(10)    NOT NULL
     CHECK (vehicle_type IN ('bike','auto','car')),
     ride_subtype NVARCHAR(20)    NULL
   CHECK (ride_subtype IN ('bike','scooty','pink_scooty','premier','sedan','rental','intercity',NULL)),
 
-    -- Driver Info (name only)
+ Driver Info (name only)
     driver_name              NVARCHAR(100)   NULL,   -- NULL = not picked
     driver_city              NVARCHAR(100)   NULL,
     driver_payment_pref      NVARCHAR(10)    NULL
                                  CHECK (driver_payment_pref IN ('cash','online','both', NULL)),
 
-    -- Payment Match Result
+ Payment Match Result
     payment_mode_used        NVARCHAR(10) NULL
     CHECK (payment_mode_used IN ('cash','online', NULL)),
 
-    -- Trip Assignment
+ Trip Assignment
     trip_status NVARCHAR(20) NOT NULL DEFAULT 'not_picked'
     CHECK (trip_status IN ('assigned','not_picked')),
     not_picked_reason        NVARCHAR(200)   NULL,
 
-    -- Trip Details
+Trip Details
     trip_date                DATE            NOT NULL,
-    driver_reaction_mins     SMALLINT        NULL,   -- how fast driver accepted
+    driver_reaction_mins     SMALLINT        NULL,   
     trip_duration_mins       SMALLINT        NULL,
     trip_distance_km         DECIMAL(6,2)    NULL,
     fare_amount              DECIMAL(8,2)    NULL,
 
-    -- Order tracking
-    total_orders_by_customer INT NULL,   -- filled via query / app logic
+ Order tracking
+    total_orders_by_customer INT NULL,   
 
-    created_at DATETIME2 DEFAULT GETDATE()
+created_at DATETIME2 DEFAULT GETDATE()
 );
 GO
 
